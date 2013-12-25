@@ -1,0 +1,16 @@
+PATH
+  remote: .
+  specs:
+    ruby_glusterfs (0.0.1)
+      subexec
+
+GEM
+  remote: http://rubygems.org/
+  specs:
+    subexec (0.2.3)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  ruby_glusterfs!
