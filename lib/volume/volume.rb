@@ -28,6 +28,35 @@ class Miaoyun::Gluster::Volume
     true
   end
 
+  def self.set_option(volume, key, value, timeout=600)
+    raise Miaoyun::Gluster::CommonError, "Should specify gluster option #{key} = #{value}" unless key && value
+    cmd ="#{@@gluster_bin} volume set #{volume} #{key} #{value}"
+    sub = Subexec.run cmd, :timeout => timeout
+    unless sub.exitstatus == 0
+      raise Miaoyun::Gluster::CommonError, "Failed to set gluster option #{key} = #{value} of volume #{volume} for #{sub.output}  with exit code #{sub.exitstatus}"
+    end
+    true
+  end
+
+  def self.enable_quota(volume, path="/", timeout=240)
+    cmd = "#{@@gluster_bin} volume quota #{volume} enable"
+    sub = Subexec.run cmd, :timeout => timeout
+    unless sub.output =~ /Enabling quota has been successful/ or sub.output =~ /Quota is already enabled/
+      raise Miaoyun::Gluster::CommonError, "Failed to enable quota for volume #{volume} path #{path} for #{sub.output} with exit code #{sub.exitstatus}"
+    end
+    true
+  end
+
+  def self.set_quota(volume, quota_value, path="/", timeout=600)
+    enable_quota(volume, path, timeout)
+    cmd = "#{@@gluster_bin} volume quota #{volume} limit-usage #{path} #{quota_value}"
+    sub = Subexec.run cmd, :timeout => timeout
+    unless sub.output =~ /limit set on #{path}/
+      raise Miaoyun::gluster::CommonError, "Failed to set quota for voluem #{volume} path #{path} for #{sub.output} with exit code #{sub.exitstatus}"
+    end
+    true
+  end
+
   def self.create(options, timeout=240)
     brickdiv = 1
     volname = options[:name]

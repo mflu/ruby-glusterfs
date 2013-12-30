@@ -7,7 +7,9 @@ $LOAD_PATH.unshift File.join(File.dirname(__FILE__), '..', 'lib')
 require "gluster"
 
 puts Miaoyun::Gluster::Volume.list
-puts Miaoyun::Gluster::Volume.info
+puts Miaoyun::Gluster::Volume.info("iops")
+Miaoyun::Gluster::Volume.set_quota("iops", "125GB")
+puts Miaoyun::Gluster::Volume.info("iops")
 puts Miaoyun::Gluster::Service.status
 
 test_vol = 'ruby-glusterfs'
