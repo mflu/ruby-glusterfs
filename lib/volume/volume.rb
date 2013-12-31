@@ -59,30 +59,30 @@ class Miaoyun::Gluster::Volume
 
   def self.create(options, timeout=240)
     brickdiv = 1
-    volname = options[:name]
+    volname = options[:name] || options["name"]
     unless volname && volname.class == String && volname.chars.count > 0
-      raise Miaoyun::Gluster::CommonError, "Name should be provided"
+      raise Miaoyun::Gluster::CommonError, "Name should be provided in #{options.inspect}"
     end
 
-    bricks = options[:bricks] || []
+    bricks = options[:bricks] || options["bricks"]
     unless bricks.class == Array && bricks.size > 0
-      raise Miaoyun::Gluster::CommonError, "Bricks should not be empty"
+      raise Miaoyun::Gluster::CommonError, "Bricks should not be empty in #{options.inspect}"
     end
 
-    transport = options[:transport] || "tcp"
+    transport = options[:transport] || options["transport"] || "tcp"
     unless ["tcp","rdma","tcp,rdma","rdma,tcp"].include? transport
-      raise Miaoyun::Gluster::CommonError, "Not supported transport type #{transport}"
+      raise Miaoyun::Gluster::CommonError, "Not supported transport type #{transport} in #{options.inspect}"
     end
 
     cmd = "#{@@gluster_bin} volume create #{volname} "
 
-    stripe = options[:stripe]
+    stripe = options[:stripe] || options["stripe"]
     if stripe
       brickdiv = stripe.to_i
       cmd += "stripe #{stripe.to_i} "
     end
 
-    replica = options[:replica]
+    replica = options[:replica] || options["replica"]
     if replica
       brickdiv = brickdiv * replica.to_i
       cmd += "replica #{replica.to_i} "
