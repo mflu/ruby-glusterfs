@@ -6,6 +6,8 @@ require 'bundler/setup'
 $LOAD_PATH.unshift File.join(File.dirname(__FILE__), '..', 'lib')
 require "gluster"
 
+puts Miaoyun::Gluster::Peer.status
+
 puts Miaoyun::Gluster::Volume.list
 puts Miaoyun::Gluster::Volume.info("iops")
 Miaoyun::Gluster::Volume.set_quota("iops", "125GB")
