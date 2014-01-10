@@ -7,7 +7,7 @@ class Miaoyun::Gluster::Service
 
   def self.init(opts)
     @@gluster_bin = opts[:gluster_bin] if opts[:gluster_bin]
-    @@vols_dir = opts[:vols_dir] if opt[:vols_dir]
+    @@vols_dir = opts[:vols_dir] if opts[:vols_dir]
   end
 
   def self.shutdown
@@ -15,9 +15,47 @@ class Miaoyun::Gluster::Service
     sub.exitstatus == 0
   end
 
+  def self.stop
+    shutdown
+  end
+
   def self.start
     sub = Subexec.run "/etc/init.d/glusterd start", :timeout => 20
     sub.exitstatus == 0
+  end
+
+  def self.stopped?()
+    begin
+      sub = Subexec.run "/etc/init.d/glusterd status", :timeout => 10
+      if sub.exitstatus == 0
+        case sub.output
+        when /is stopped/
+          return true
+        else
+          return false
+        end
+      end
+    rescue => e
+      raise Miaoyun::Gluster::CommonError, "Failed to get status of glusterd for #{e.message} - #{e.backtrace.join("\n")}"
+    end
+    false
+  end
+
+  def self.started?()
+    begin
+      sub = Subexec.run "/etc/init.d/glusterd status", :timeout => 10
+      if sub.exitstatus == 0
+        case sub.output
+        when /is running/
+          return true
+        else
+          return false
+        end
+      end
+    rescue => e
+      raise Miaoyun::Gluster::CommonError, "Failed to get status of glusterd for #{e.message} - #{e.backtrace.join("\n")}"
+    end
+    false
   end
 
   def self.status()
